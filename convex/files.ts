@@ -16,9 +16,6 @@ export async function hasAccessToOrg(
 }
 
 
-
-
-
 export const createFile = mutation({
     args: {
         name: v.string(),
