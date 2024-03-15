@@ -4,6 +4,15 @@ import { SignInButton, SignOutButton, SignedIn, SignedOut, useOrganization, useU
 import Image from "next/image";
 import { api } from "../../convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 export default function Home() {
   const organization = useOrganization();
@@ -18,15 +27,30 @@ export default function Home() {
   );
   const createFile = useMutation(api.files.createFile);
   return (
-        <main className="flex min-h-screen flex-col items-center justify-between p-24">
-          
+        <main className="container mx-auto pt-12">
+          <div className="flex justify-between items-center">
+            <h1 className="text-4xl font-bold">Your Files</h1>
+            <Dialog>
+            <DialogTrigger>Open</DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete your account
+                  and remove your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
           {files?.map((file) => (
             <div key={file._id}>
               <p>{file.name}</p>
             </div>
           ))}
-
+     
           <Button onClick={() => {if(!orgId) return; createFile({ name: "hello world", orgId })}}>Click Me!</Button>
+
+          </div>
         </main>
   );
 }
