@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useState } from "react";
 
 const formSchema = z.object({
   title: z.string().min(1).max(200),
@@ -37,16 +38,17 @@ const formSchema = z.object({
 export default function Home() {
   const organization = useOrganization();
   const user = useUser()
-  let orgId: string | undefined = undefined
-  if(organization.isLoaded && user.isLoaded) {
-    orgId = organization.organization?.id ?? user.user?.id
-  }
-  const files = useQuery(
-    api.files.getFiles,
-    orgId ? { orgId } : "skip"
-  );
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
+  let orgId: string | undefined = undefined
+  if(organization.isLoaded && user.isLoaded) { 
+    orgId = organization.organization?.id ?? user.user?.id 
+  }
+  const files = useQuery(api.files.getFiles,orgId ? { orgId } : "skip");
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false)
 
+  
+  
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -58,19 +60,38 @@ export default function Home() {
 
     const fileRef = form.register("file")
     
-    function onSubmit(values: z.infer<typeof formSchema>) {
-      // Do something with the form values.
-      // ✅ This will be type-safe and validated.
-      console.log(values)
+   async function onSubmit(values: z.infer<typeof formSchema>) {
+      
+      if(!orgId) return;
+
+      const postUrl = await generateUploadUrl();
+
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: {"Content-Type": values.file[0].type},
+        body: values.file[0]
+      })
+
+      const { storageId } = await result.json()
+      
+      await createFile({
+        name: values.title,
+        fileId: storageId,
+        orgId
+      })
+
+      form.reset()
+
+      setIsFileDialogOpen(false)
     }
 
   return (
         <main className="container mx-auto pt-12">
           <div className="flex justify-between items-center">
             <h1 className="text-4xl font-bold">Your Files</h1>
-            <Dialog>
+            <Dialog open={isFileDialogOpen} onOpenChange={setIsFileDialogOpen}>
             <DialogTrigger>
-              <Button onClick={() => {if(!orgId) return; createFile({ name: "hello world", orgId })}}>Click Me!</Button>
+              <Button onClick={() => {}}>Upload</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
