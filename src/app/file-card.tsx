@@ -28,7 +28,7 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
   
-import { DeleteIcon, FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, TrashIcon } from "lucide-react"
+import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, TrashIcon } from "lucide-react"
 import { ReactNode, useState } from "react"
 import { useMutation } from "convex/react"
 import { api } from "../../convex/_generated/api"
@@ -90,7 +90,6 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
 
 function getFileUrl(fileId: Id<"_storage">): string {
     return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`
-    // https://wry-monitor-396.convex.cloud/api/storage/ab1a1395-2e46-41bb-a1da-783a9ed233a7
 }
   
 
@@ -127,7 +126,13 @@ export function FileCard({ file }: { file: Doc<"files"> }) {
                 {file.type === "pdf" && <FileTextIcon className="w-20 h-20" />}
             </CardContent>
             <CardFooter className="flex justify-center">
-                <Button>Download</Button>
+                <Button
+                    onClick={() => {
+                        window.open(getFileUrl(file.fileId), "_blank")
+                    }}
+                >
+                    Download
+                </Button>
             </CardFooter>
         </Card>
     )

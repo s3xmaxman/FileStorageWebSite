@@ -11,6 +11,8 @@ import { UploadButton } from "./upload-button";
 import { FileCard } from "./file-card";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
+import { SearchBar } from "./search-bar";
+import { useState } from "react";
 
 const formSchema = z.object({
   title: z.string().min(1).max(200),
@@ -23,6 +25,7 @@ const formSchema = z.object({
 export default function Home() {
   const organization = useOrganization();
   const user = useUser()
+  const [query, setQuery] = useState("")
   let orgId: string | undefined = undefined
   if(organization.isLoaded && user.isLoaded) { 
     orgId = organization.organization?.id ?? user.user?.id 
@@ -32,13 +35,13 @@ export default function Home() {
 
 
     // 1. Define your form.
-    const form = useForm<z.infer<typeof formSchema>>({
-      resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
       defaultValues: {
         title: "",
         file: undefined,
       },
-    })
+  })
    
   return (
         <main className="container mx-auto pt-12">
@@ -71,6 +74,8 @@ export default function Home() {
               <h1 className="text-4xl font-bold">Your Files</h1>
                 <UploadButton />
             </div>
+
+              <SearchBar />
 
               <div className="grid grid-cols-3 gap-4">
                 {files?.map((file) => (
