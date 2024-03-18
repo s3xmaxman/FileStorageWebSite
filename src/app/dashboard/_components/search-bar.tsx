@@ -3,6 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, SearchIcon } from "lucide-react"
+import { Dispatch, SetStateAction } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -10,7 +11,7 @@ const formSchema = z.object({
     query: z.string().min(1).max(200),
 })
 
-export function SearchBar() {
+export function SearchBar({query, setQuery}: {query: string, setQuery: Dispatch<SetStateAction<string>>}) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -19,7 +20,7 @@ export function SearchBar() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+        setQuery(values.query)
     }
 
     return (

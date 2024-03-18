@@ -6,7 +6,7 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
-import { Doc, Id } from "../../convex/_generated/dataModel"
+import { Doc, Id } from "../../../../convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -28,10 +28,10 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
   
-import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, TrashIcon } from "lucide-react"
+import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, StarIcon, TrashIcon } from "lucide-react"
 import { ReactNode, useState } from "react"
 import { useMutation } from "convex/react"
-import { api } from "../../convex/_generated/api"
+import { api } from "../../../../convex/_generated/api"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
   
@@ -39,6 +39,7 @@ import Image from "next/image"
 function FileCardActions({ file }: { file: Doc<"files"> }) {
     const { toast } = useToast()
     const deleteFile = useMutation(api.files.deleteFile)
+    const toggleFavorite = useMutation(api.files.toggleFavorite)
     const [ isConfirmOpen, setIsConfirmOpen ] = useState(false)
     return (
         <>
@@ -77,7 +78,14 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
               </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem 
-                        className="flex fap-1 text-red-600 items-center"
+                        className="flex gap-1 cursor-pointer"
+                        onClick={() => toggleFavorite({ fileId: file._id })}
+                    >
+                        <StarIcon className="w-4 h-4" /> Favorite
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                        className="flex gap-1 text-red-600 items-center"
                         onClick={() => setIsConfirmOpen(true)}
                     >
                         <TrashIcon className="w-4 h-4" /> Delete
@@ -89,9 +97,8 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
 }
 
 function getFileUrl(fileId: Id<"_storage">): string {
-    return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`
+    return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
 }
-  
 
 export function FileCard({ file }: { file: Doc<"files"> }) {
     const typeIcons = {
