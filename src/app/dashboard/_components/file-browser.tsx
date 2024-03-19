@@ -39,15 +39,19 @@ const formSchema = z.object({
 })
 
 
-export  function FileBrowser({ title, favorites }: { title: string, favorites?: boolean }) {
+export  function FileBrowser({ title, favoriteOnly }: { title: string, favoriteOnly?: boolean }) {
   const organization = useOrganization();
   const user = useUser()
   const [query, setQuery] = useState("")
+
   let orgId: string | undefined = undefined
+
   if(organization.isLoaded && user.isLoaded) { 
     orgId = organization.organization?.id ?? user.user?.id 
   }
-  const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites } : "skip");
+
+  const favorites = useQuery(api.files.getAllFavorites, orgId ? { orgId }: "skip");
+  const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites: favoriteOnly } : "skip");
   const isLoading = files === undefined
 
 
@@ -84,7 +88,7 @@ export  function FileBrowser({ title, favorites }: { title: string, favorites?: 
 
               <div className="grid grid-cols-3 gap-4">
                 {files?.map((file) => {
-                  return <FileCard key={file._id} file={file} />
+                  return <FileCard favorites={favorites ?? []} key={file._id} file={file} />
                 })}
             </div>
           </>

@@ -37,7 +37,7 @@ export async function hasAccessToOrg(
       return null;
     }
   
-    const hasAccess = user.tokenIdentifier.includes(orgId);
+    const hasAccess =  user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
   
     if (!hasAccess) {
       return null;
@@ -167,6 +167,26 @@ export const toggleFavorite = mutation({
     },
 });
 
+
+export const getAllFavorites = query({
+   args: {
+       orgId: v.string(),
+   },
+   async handler(ctx, args) {
+       const hasAccess = await hasAccessToOrg(ctx, args.orgId);
+       
+       if(!hasAccess) {
+           return []
+       }
+
+       const favorites = await ctx.db
+       .query("favorites")
+       .withIndex("by_userId_orgId_fileId", q => q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId))
+       .collect()
+    
+       return favorites
+    },
+})
 
 
 async function hasAccessToFile(ctx: QueryCtx | MutationCtx, fileId: Id<"files">){
