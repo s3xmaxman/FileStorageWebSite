@@ -1,3 +1,4 @@
+import { formatRelative } from "date-fns";
 import {
     Card,
     CardContent,
@@ -28,13 +29,15 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
   
-import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, StarHalf, StarIcon, TrashIcon, UndoIcon } from "lucide-react"
+import { FileIcon, FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, StarHalf, StarIcon, TrashIcon, UndoIcon } from "lucide-react"
 import { ReactNode, useState } from "react"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
 import { Protect } from "@clerk/nextjs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
   
 
 function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFavorite: boolean }) {
@@ -79,6 +82,14 @@ function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFavorite:
                 <MoreVertical />
               </DropdownMenuTrigger>
                 <DropdownMenuContent>
+                <DropdownMenuItem
+                    onClick={() => {
+                    window.open(getFileUrl(file.fileId), "_blank");
+                    }}
+                    className="flex gap-1 items-center cursor-pointer"
+                >
+                    <FileIcon className="w-4 h-4" /> Download
+                </DropdownMenuItem>
                     <DropdownMenuItem 
                         className="flex gap-1 cursor-pointer"
                         onClick={() => toggleFavorite({ fileId: file._id })}
@@ -136,6 +147,7 @@ function getFileUrl(fileId: Id<"_storage">): string {
 
 
 export function FileCard({ file, favorites }: { file: Doc<"files">, favorites: Doc<"favorites">[] }) {
+    const userProfile = useQuery(api.users.getUserProfile,{ userId: file.userId})
     const isFavorite = (fileId: Id<"files">) => {
         return favorites.some(favorite => favorite.fileId === fileId)
     }
@@ -149,7 +161,7 @@ export function FileCard({ file, favorites }: { file: Doc<"files">, favorites: D
     return (
         <Card>
             <CardHeader className="relative">
-                <CardTitle className="flex gap-2">
+                <CardTitle className="flex gap-2 text-base font-normal">
                     <div className="flex justify-center">
                         {typeIcons[file.type]}
                     </div>{" "}
@@ -172,14 +184,17 @@ export function FileCard({ file, favorites }: { file: Doc<"files">, favorites: D
                 {file.type === "csv" && <FileTextIcon className="w-20 h-20" />}
                 {file.type === "pdf" && <FileTextIcon className="w-20 h-20" />}
             </CardContent>
-            <CardFooter className="flex justify-center">
-                <Button
-                    onClick={() => {
-                        window.open(getFileUrl(file.fileId), "_blank")
-                    }}
-                >
-                    Download
-                </Button>
+            <CardFooter className="flex gap-2 text-xs text-gray-700">
+                <div className="flex gap-2 text-xs text-gray-700 w-40 items-center">
+                    <Avatar className="w-8 h-8">
+                        <AvatarImage src={userProfile?.image} />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    {userProfile?.name}
+                </div>
+                <div className="text-xs text-gray-700">
+                    Uploaded on {formatRelative(new Date(file._creationTime), new Date())}
+                </div>
             </CardFooter>
         </Card>
     )
