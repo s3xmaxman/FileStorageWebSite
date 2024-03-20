@@ -21,10 +21,11 @@ import {
   }: {
     file: Doc<"files"> & { isFavorite: boolean };
   }) {
+
     const userProfile = useQuery(api.users.getUserProfile, {
       userId: file.userId,
     });
-  
+
     const typeIcons = {
       image: <ImageIcon />,
       pdf: <FileTextIcon />,
@@ -48,7 +49,7 @@ import {
               alt={file.name}
               width="200"
               height="100"
-              src={getFileUrl(file.fileId)}
+              src={file.url}
             />
           )}
   
