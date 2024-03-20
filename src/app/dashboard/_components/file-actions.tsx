@@ -69,7 +69,7 @@ export function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFa
                 <DropdownMenuContent>
                 <DropdownMenuItem
                     onClick={() => {
-                    window.open(getFileUrl(file.fileId), "_blank");
+                    window.open(file.url, "_blank");
                     }}
                     className="flex gap-1 items-center cursor-pointer"
                 >
