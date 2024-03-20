@@ -33,18 +33,18 @@ http.route({
          // ユーザーを作成する mutation を実行
          await ctx.runMutation(internal.users.createUser, {
            tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
-        //    name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
-        //    image: result.data.image_url,
+           name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
+           image: result.data.image_url,
          });
          break;
-    //    case "user.updated":
-    //      // ユーザーを更新する mutation を実行
-    //      await ctx.runMutation(internal.users.updateUser, {
-    //        tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
-    //        name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
-    //        image: result.data.image_url,
-    //      });
-    //      break;
+       case "user.updated":
+         // ユーザーを更新する mutation を実行
+         await ctx.runMutation(internal.users.updateUser, {
+           tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
+           name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
+           image: result.data.image_url,
+         });
+         break;
        case "organizationMembership.created":
          // ユーザーに組織IDを追加する mutation を実行
          await ctx.runMutation(internal.users.addOrgIdToUser, {

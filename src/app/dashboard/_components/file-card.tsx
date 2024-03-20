@@ -28,7 +28,7 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
   
-import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, StarHalf, StarIcon, TrashIcon } from "lucide-react"
+import { FileTextIcon, GanttChartIcon, ImageIcon, MoreVertical, StarHalf, StarIcon, TrashIcon, UndoIcon } from "lucide-react"
 import { ReactNode, useState } from "react"
 import { useMutation } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
@@ -40,6 +40,7 @@ import { Protect } from "@clerk/nextjs"
 function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFavorite: boolean }) {
     const { toast } = useToast()
     const deleteFile = useMutation(api.files.deleteFile)
+    const restoreFile = useMutation(api.files.restoreFile)
     const toggleFavorite = useMutation(api.files.toggleFavorite)
     const [ isConfirmOpen, setIsConfirmOpen ] = useState(false)
     return (
@@ -94,14 +95,32 @@ function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFavorite:
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <Protect
-                        // role="org:admin"
+                        role="org:admin"
                         fallback={<></>}
                     >
                     <DropdownMenuItem 
-                        className="flex gap-1 text-red-600 items-center"
-                        onClick={() => setIsConfirmOpen(true)}
-                    >
-                        <TrashIcon className="w-4 h-4" /> Delete
+                        className="flex gap-1 items-center cursor-pointer"
+                        onClick={() => {
+                            if(file.shouldDelete) {
+                                restoreFile({
+                                    fileId: file._id
+                                })
+                            } else {
+                                setIsConfirmOpen(true)
+                            }
+                          } 
+                        }
+                    >    
+                        {file.shouldDelete ? (
+                            <div className="flex gap-1 items-center cursor-pointer text-green-600">
+                                <UndoIcon className="w-4 h-4" /> Restore
+                            </div>
+                        ) : (
+                            <div className="flex gap-1 items-center cursor-pointer text-red-600">
+                                <TrashIcon className="w-4 h-4" /> Delete
+                            </div>
+                        )}
+                       
                     </DropdownMenuItem>
                     </Protect>
                 </DropdownMenuContent>
@@ -120,11 +139,13 @@ export function FileCard({ file, favorites }: { file: Doc<"files">, favorites: D
     const isFavorite = (fileId: Id<"files">) => {
         return favorites.some(favorite => favorite.fileId === fileId)
     }
+    
     const typeIcons = {
         image: <ImageIcon />,
         pdf: <FileTextIcon />,
         csv: <GanttChartIcon />,
     } as Record<Doc<"files">["type"], ReactNode>
+
     return (
         <Card>
             <CardHeader className="relative">

@@ -39,7 +39,7 @@ const formSchema = z.object({
 })
 
 
-export  function FileBrowser({ title, favoriteOnly }: { title: string, favoriteOnly?: boolean }) {
+export  function FileBrowser({ title, favoriteOnly, deletedOnly }: { title: string, favoriteOnly?: boolean, deletedOnly?: boolean }) {
   const organization = useOrganization();
   const user = useUser()
   const [query, setQuery] = useState("")
@@ -51,7 +51,7 @@ export  function FileBrowser({ title, favoriteOnly }: { title: string, favoriteO
   }
 
   const favorites = useQuery(api.files.getAllFavorites, orgId ? { orgId }: "skip");
-  const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites: favoriteOnly } : "skip");
+  const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites: favoriteOnly, deletedOnly } : "skip");
   const isLoading = files === undefined
 
 
