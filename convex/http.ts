@@ -32,7 +32,7 @@ http.route({
        case "user.created":
          // ユーザーを作成する mutation を実行
          await ctx.runMutation(internal.users.createUser, {
-           tokenIdentifier: `https://precise-grizzly-42.clerk.accounts.dev|${result.data.id}`,
+           tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
         //    name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
         //    image: result.data.image_url,
          });
@@ -48,19 +48,19 @@ http.route({
        case "organizationMembership.created":
          // ユーザーに組織IDを追加する mutation を実行
          await ctx.runMutation(internal.users.addOrgIdToUser, {
-           tokenIdentifier: `https://precise-grizzly-42.clerk.accounts.dev|${result.data.public_user_data.user_id}`,
+           tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
            orgId: result.data.organization.id,
-        // role: result.data.role === "org:admin" ? "admin" : "member",
+           role: result.data.role === "org:admin" ? "admin" : "member",
          });
          break;
-    //    case "organizationMembership.updated":
-    //      // ユーザーの組織内の役割を更新する mutation を実行
-    //      await ctx.runMutation(internal.users.updateRoleInOrgForUser, {
-    //        tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
-    //        orgId: result.data.organization.id,
-    //        role: result.data.role === "org:admin" ? "admin" : "member",
-    //      });
-    //      break;
+       case "organizationMembership.updated":
+         // ユーザーの組織内の役割を更新する mutation を実行
+         await ctx.runMutation(internal.users.updateRoleInOrgForUser, {
+           tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
+           orgId: result.data.organization.id,
+           role: result.data.role === "org:admin" ? "admin" : "member",
+         });
+         break;
      }
 
      // 成功時に200レスポンスを返す
