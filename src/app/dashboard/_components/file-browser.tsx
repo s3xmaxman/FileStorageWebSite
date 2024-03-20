@@ -13,6 +13,8 @@ import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { SearchBar } from "./search-bar";
 import { useState } from "react";
+import { DataTable } from "./file-table";
+import { columns } from "./columns";
 
 function Placeholder() {
   return (
@@ -54,15 +56,13 @@ export  function FileBrowser({ title, favoriteOnly, deletedOnly }: { title: stri
   const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites: favoriteOnly, deletedOnly } : "skip");
   const isLoading = files === undefined
 
-
-    // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-      defaultValues: {
-        title: "",
-        file: undefined,
-      },
-  })
+  const modifiedFiles =
+    files?.map((file) => ({
+      ...file,
+      isFavorite: (favorites ?? []).some(
+        (favorite) => favorite.fileId === file._id
+      ),
+    })) ?? [];
    
   return (
         <main className="container mx-auto pt-12">
@@ -85,6 +85,8 @@ export  function FileBrowser({ title, favoriteOnly, deletedOnly }: { title: stri
             </div>
 
               {files?.length === 0 && <Placeholder />}
+
+              <DataTable columns={columns} data={modifiedFiles} />
 
               <div className="grid grid-cols-3 gap-4">
                 {files?.map((file) => {
