@@ -15,6 +15,7 @@ import { columns } from "./columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Doc } from "../../../../convex/_generated/dataModel";
 
 function Placeholder() {
   return (
@@ -38,6 +39,7 @@ export  function FileBrowser({ title, favoriteOnly, deletedOnly }: { title: stri
   const organization = useOrganization();
   const user = useUser()
   const [query, setQuery] = useState("")
+  const [type, setType] = useState<Doc<"files">["type"] | "all">("all");
 
   let orgId: string | undefined = undefined
 
@@ -46,7 +48,19 @@ export  function FileBrowser({ title, favoriteOnly, deletedOnly }: { title: stri
   }
 
   const favorites = useQuery(api.files.getAllFavorites, orgId ? { orgId }: "skip");
-  const files = useQuery(api.files.getFiles,orgId ? { orgId, query, favorites: favoriteOnly, deletedOnly } : "skip");
+  const files = useQuery(
+    api.files.getFiles,
+    orgId
+      ? {
+          orgId,
+          type: type === "all" ? undefined : type,
+          query,
+          favorites: favoriteOnly,
+          deletedOnly,
+        }
+      : "skip"
+  );
+  
   const isLoading = files === undefined
 
   const modifiedFiles =

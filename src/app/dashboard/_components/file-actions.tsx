@@ -1,5 +1,5 @@
 import { useToast } from "@/components/ui/use-toast"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { Doc, Id } from "../../../../convex/_generated/dataModel"
 import { api } from "../../../../convex/_generated/api"
 import { useState } from "react"
@@ -29,6 +29,7 @@ export function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFa
     const deleteFile = useMutation(api.files.deleteFile)
     const restoreFile = useMutation(api.files.restoreFile)
     const toggleFavorite = useMutation(api.files.toggleFavorite)
+    const me = useQuery(api.users.getMe)
     const [ isConfirmOpen, setIsConfirmOpen ] = useState(false)
     return (
         <>
@@ -90,7 +91,13 @@ export function FileCardActions({ file, isFavorite }: { file: Doc<"files">, isFa
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <Protect
-                        role="org:admin"
+                        condition={(check) => {
+                            return (
+                              check({
+                                role: "org:admin",
+                              }) || file.userId === me?._id
+                            );
+                        }}
                         fallback={<></>}
                     >
                     <DropdownMenuItem 
