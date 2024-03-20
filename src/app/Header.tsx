@@ -9,23 +9,18 @@ import {
 } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { ModeToggle } from "./dashboard/_components/toggle";
 
 export function Header() {
   return (
-    <div className="relative z-10 border-b py-4 bg-gray-50">
+    <div className="relative z-10 border-b py-4 bg-gray-50 dark:bg-gray-900">
       <div className="items-center container mx-auto justify-between flex">
-        <Link href="/" className="flex gap-2 items-center text-xl text-black">
+        <Link href="/" className="flex gap-2 items-center text-xl text-black dark:text-white">
           <Image src="/logo.png" width="50" height="50" alt="file drive logo" />
           FileDrive
         </Link>
 
-        {/* <SignedIn>
-          <Button variant={"outline"}>
-            <Link href="/dashboard/files">Your Files</Link>
-          </Button>
-        </SignedIn> */}
-
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <OrganizationSwitcher />
           <UserButton />
           <SignedOut>
@@ -33,6 +28,9 @@ export function Header() {
               <Button>Sign In</Button>
             </SignInButton>
           </SignedOut>
+          <div className="flex gap-2">
+            <ModeToggle />
+          </div>
         </div>
       </div>
     </div>
