@@ -50,7 +50,7 @@ import {
               width="200"
               height="100"
               src={file.url}
-              className="max-w-full max-h-full object-cover"
+              className="max-w-full max-h-full object-cover rounded-lg"
             />
           )}
   
